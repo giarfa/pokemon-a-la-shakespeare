@@ -2,6 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using PokeApiNet;
+using pokemon_a_la_shakespeare.Exceptions;
+using pokemon_a_la_shakespeare.Models;
+using pokemon_a_la_shakespeare.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,11 +17,11 @@ namespace pokemon_a_la_shakespeare.Controllers
     [Route("[controller]")]
     public class PokemonController : ControllerBase
     {
-        private readonly PokeApiClient pokeApiClient;
+        private readonly TranslationService translationService;
 
-        public PokemonController(PokeApiClient pokeApiClient)
+        public PokemonController(TranslationService translationService)
         {
-            this.pokeApiClient = pokeApiClient;
+            this.translationService = translationService;
         }
 
         [HttpGet]
@@ -27,76 +30,27 @@ namespace pokemon_a_la_shakespeare.Controllers
         [HttpGet("{pokemonName}")]
         public async Task<ActionResult<TranslatedPokemon>> Get(string pokemonName)
         {
-            var pokemonSpecies = await pokeApiClient.GetResourceAsync<PokemonSpecies>(pokemonName);
-
-            var textToTranslate = pokemonSpecies.FlavorTextEntries
-                                                .First(x => x.Language.Name == "en") // english text seems to be always present
-                                                .FlavorText;
-
-            var h = new HttpClient();
-
-            var formContent = new FormUrlEncodedContent(
-                        new[]{
-                        new KeyValuePair<string, string>("text", textToTranslate)
-                        }
-                    );
-
-            var translatedResponse = await h.PostAsync(
-                new Uri($"https://api.funtranslations.com/translate/shakespeare.json"),
-                formContent
-                );
-
-            var jsonTranslationString = await translatedResponse.Content.ReadAsStringAsync();
-            var traslationResult = JsonConvert.DeserializeObject<TranslationResult>(jsonTranslationString);
-
-            if (traslationResult.Success != null)
-                return Ok(new TranslatedPokemon(pokemonSpecies.Name, traslationResult.Content.Translated));
-            else if (traslationResult.Error?.Code == "429")
-                return StatusCode(StatusCodes.Status429TooManyRequests, new TranslatedPokemon(pokemonSpecies.Name, "Shakespeare is tired now, let's give him one hour or so to rest"));
-            else
-                return this.UnprocessableEntity();
+            try
+            {
+                var translatedDescription = await this.translationService.TranslateAsync(pokemonName);
+                return Ok(new TranslatedPokemon(pokemonName, translatedDescription));
+            }
+            catch (PokemonNotFoundException)
+            {
+                return NotFound(new TranslatedPokemon(pokemonName, "Pokemon not found"));
+            }
+            catch (TooManyPoetryzeRequestsException)
+            {
+                return StatusCode(StatusCodes.Status429TooManyRequests, new TranslatedPokemon(pokemonName, "Shakespeare is tired now, let's give him one hour or so to rest"));
+            }
+            catch (BadException)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new TranslatedPokemon(pokemonName, "Something went wrong, please try again later"));
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new TranslatedPokemon(pokemonName, "Something went wrong, please try again later"));
+            }
         }
-    }
-
-    public class TranslatedPokemon
-    {
-        public TranslatedPokemon(string name, string description)
-        {
-            Name = name;
-            Description = description;
-        }
-
-        public string Name { get; }
-        public string Description { get; }
-    }
-
-    public class TranslationResult
-    {
-        [JsonProperty("success")]
-        public TranslationSuccess Success { get; set; }
-
-        [JsonProperty("contents")]
-        public TranslationContent Content { get; set; }
-
-        [JsonProperty("error")]
-        public TranslationError Error { get; set; }
-    }
-
-    public class TranslationSuccess
-    {
-        [JsonProperty("total")]
-        public int Total { get; set; }
-    }
-
-    public class TranslationContent
-    {
-        [JsonProperty("translated")]
-        public string Translated { get; set; }
-    }
-
-    public class TranslationError
-    {
-        [JsonProperty("code")]
-        public string Code { get; set; }
     }
 }

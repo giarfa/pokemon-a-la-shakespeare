@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using PokeApiNet;
+using pokemon_a_la_shakespeare.Services;
 
 namespace pokemon_a_la_shakespeare
 {
@@ -27,6 +28,9 @@ namespace pokemon_a_la_shakespeare
         {
             services.AddControllers();
             services.AddSingleton<PokeApiClient>();
+            services.AddScoped<PokemonService>();
+            services.AddScoped<ShakespeareService>();
+            services.AddScoped<TranslationService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
