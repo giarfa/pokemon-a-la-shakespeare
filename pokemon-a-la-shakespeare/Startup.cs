@@ -28,6 +28,7 @@ namespace pokemon_a_la_shakespeare
         {
             services.AddControllers();
             services.AddSingleton<PokeApiClient>();
+            services.AddSingleton<TranslationCacheService>();
             services.AddScoped<PokemonService>();
             services.AddScoped<ShakespeareService>();
             services.AddScoped<TranslationService>();

@@ -10,19 +10,26 @@ namespace pokemon_a_la_shakespeare.Services
     {
         private readonly PokemonService pokemonService;
         private readonly ShakespeareService shakespeareService;
+        private readonly TranslationCacheService translationCacheService;
 
-        public TranslationService(PokemonService pokemonService, ShakespeareService shakespeareService)
+        public TranslationService(PokemonService pokemonService, ShakespeareService shakespeareService, TranslationCacheService translationCacheService)
         {
             this.pokemonService = pokemonService;
             this.shakespeareService = shakespeareService;
+            this.translationCacheService = translationCacheService;
         }
 
         public async Task<string> TranslateAsync(string pokemonName)
         {
+            if (this.translationCacheService.Contains(pokemonName))
+                return this.translationCacheService.Get(pokemonName);
+
             try
             {
                 var pokemonDescription = await this.pokemonService.GetPokemonDescriptionAsync(pokemonName);
-                return await shakespeareService.PoetyzeAsync(pokemonDescription);
+                var poetyzedDescription = await shakespeareService.PoetyzeAsync(pokemonDescription);
+                this.translationCacheService.Add(pokemonName, poetyzedDescription);
+                return poetyzedDescription;
             }
             catch (PokemonNotFoundException)
             {
