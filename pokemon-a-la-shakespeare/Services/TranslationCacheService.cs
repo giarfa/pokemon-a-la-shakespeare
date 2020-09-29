@@ -16,7 +16,7 @@ namespace pokemon_a_la_shakespeare.Services
 
         public bool Contains(string key) => this.translationsCache.ContainsKey(key);
 
-        public void Add(string key, string value) => this.translationsCache.Add(key, value);
+        public void AddOrUpdate(string key, string value) => this.translationsCache[key] = value;
 
         public string Get(string key) => this.translationsCache[key];
     }

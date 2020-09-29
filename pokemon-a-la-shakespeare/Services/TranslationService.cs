@@ -28,7 +28,7 @@ namespace pokemon_a_la_shakespeare.Services
             {
                 var pokemonDescription = await this.pokemonService.GetPokemonDescriptionAsync(pokemonName);
                 var poetyzedDescription = await shakespeareService.PoetyzeAsync(pokemonDescription);
-                this.translationCacheService.Add(pokemonName, poetyzedDescription);
+                this.translationCacheService.AddOrUpdate(pokemonName, poetyzedDescription);
                 return poetyzedDescription;
             }
             catch (PokemonNotFoundException)

@@ -37,11 +37,17 @@ namespace pokemon_a_la_shakespeare.Services
 
                 else if (traslationResult.Error?.Code == "429")
                     throw new TooManyPoetryzeRequestsException();
-                    //return StatusCode(StatusCodes.Status429TooManyRequests, new TranslatedPokemon(pokemonName, "Shakespeare is tired now, let's give him one hour or so to rest"));
 
                 else
                     throw new BadException();
-                    //return this.UnprocessableEntity();
+            }
+            catch (TooManyPoetryzeRequestsException)
+            {
+                throw;
+            }
+            catch (BadException)
+            {
+                throw;
             }
             catch (Exception)
             {
