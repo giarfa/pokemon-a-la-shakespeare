@@ -24,9 +24,9 @@ namespace pokemon_a_la_shakespeare.Test
         {
             var normalText = "You gave Mr. Tim a hearty meal, but unfortunately what he ate made him die.";
             var expectedShakespeareText = "Thee did giveth mr. Tim a hearty meal,  but unfortunately what he did doth englut did maketh him kicketh the bucket.";
-            var shakespeareText = await this.shakespeareService.PoetyzeAsync(normalText);
+            var actualShakespeareText = await this.shakespeareService.PoetyzeAsync(normalText);
 
-            Assert.AreEqual(expectedShakespeareText, shakespeareText);
+            Assert.AreEqual(expectedShakespeareText, actualShakespeareText);
         }
     }
 }
