@@ -10,9 +10,9 @@ namespace pokemon_a_la_shakespeare.Services
     {
         private readonly PokemonService pokemonService;
         private readonly ShakespeareService shakespeareService;
-        private readonly TranslationCacheService translationCacheService;
+        private readonly CacheService translationCacheService;
 
-        public TranslationService(PokemonService pokemonService, ShakespeareService shakespeareService, TranslationCacheService translationCacheService)
+        public TranslationService(PokemonService pokemonService, ShakespeareService shakespeareService, CacheService translationCacheService)
         {
             this.pokemonService = pokemonService;
             this.shakespeareService = shakespeareService;
