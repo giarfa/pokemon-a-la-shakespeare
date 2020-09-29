@@ -28,5 +28,23 @@ namespace pokemon_a_la_shakespeare.Test
 
             Assert.AreEqual(expectedShakespeareText, actualShakespeareText);
         }
+
+        [TestMethod]
+        [TestCategory("ManualTest")]
+        public async Task Poetyze_CallOnlineShakespeareServiceUntilServiceOutage_ShouldThrowTooManyPoetryzeRequestsException()
+        {
+            var normalText = "You gave Mr. Tim a hearty meal, but unfortunately what he ate made him die.";
+
+            await Assert.ThrowsExceptionAsync<Exceptions.TooManyPoetryzeRequestsException>(async () =>
+            {
+                await this.shakespeareService.PoetyzeAsync(normalText);
+                await this.shakespeareService.PoetyzeAsync(normalText);
+                await this.shakespeareService.PoetyzeAsync(normalText);
+                await this.shakespeareService.PoetyzeAsync(normalText);
+                await this.shakespeareService.PoetyzeAsync(normalText);
+                await this.shakespeareService.PoetyzeAsync(normalText);
+                await this.shakespeareService.PoetyzeAsync(normalText);
+            });
+        }
     }
 }
