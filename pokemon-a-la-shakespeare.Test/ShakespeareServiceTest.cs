@@ -37,13 +37,10 @@ namespace pokemon_a_la_shakespeare.Test
 
             await Assert.ThrowsExceptionAsync<Exceptions.TooManyPoetryzeRequestsException>(async () =>
             {
-                await this.shakespeareService.PoetyzeAsync(normalText);
-                await this.shakespeareService.PoetyzeAsync(normalText);
-                await this.shakespeareService.PoetyzeAsync(normalText);
-                await this.shakespeareService.PoetyzeAsync(normalText);
-                await this.shakespeareService.PoetyzeAsync(normalText);
-                await this.shakespeareService.PoetyzeAsync(normalText);
-                await this.shakespeareService.PoetyzeAsync(normalText);
+                for (int i = 0; i < 50; i++)
+                {
+                    await this.shakespeareService.PoetyzeAsync(normalText);
+                }
             });
         }
     }
